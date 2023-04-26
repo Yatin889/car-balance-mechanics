@@ -744,7 +744,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aac6318afb50e02478ef969ecef48915, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 700
+  speed: 750
   AngularSpeed: 0
   Brakemangnitude: 5
   backWheel: {fileID: 463772813}

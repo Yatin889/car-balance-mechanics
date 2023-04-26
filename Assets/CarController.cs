@@ -15,8 +15,12 @@ public class CarController : MonoBehaviour
     public WheelJoint2D backWheel;
     public WheelJoint2D frontWheel;
     Rigidbody2D carRB;
-    
+
+    Vector2 pos;
+    Vector2 posEnd;
+    bool isTouchEnd=false;
     // Start is called before the first frame update
+
     void Start()
     {
         carRB=GetComponent<Rigidbody2D>();
@@ -27,18 +31,75 @@ public class CarController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-       // movement = Input.GetAxisRaw("Vertical") * speed;
+        // movement = Input.GetAxisRaw("Vertical") * speed;
         //rotationMov = Input.GetAxisRaw("Horizontal") * AngularSpeed;
         Translation();
-        Rotational();
+        //Rotational();
         BrakeApply();
+        
+    }
+    private void Update()
+    {
+        touchControl();
+        Rotational();
+    }
+
+    private void touchControl()
+    {
+        if (Input.touchCount > 0f)
+        {
+            Debug.Log(Input.touchCount);
+
+            Touch touch = Input.GetTouch(0);
+            // if (touch.phase == TouchPhase.Moved)
+            if (touch.phase == TouchPhase.Began)
+            {
+                pos = touch.position;
+
+                // pos=Camera.main.ScreenToWorldPoint(touch.position);
+                Debug.Log("touch Began");
+                //transform.position = pos;
+                //Debug.DrawLine(Vector2.zero, transform.position,Color.red );
+
+            }
+            if (touch.phase == TouchPhase.Ended)
+            {
+                Debug.Log("touch ended");
+                // Vector2 posEnd = Camera.main.WorldToScreenPoint(touch.position);
+                posEnd = touch.position;
+              //  transform.position = posEnd - pos;
+                Debug.Log(posEnd.y-pos.y);
+                isTouchEnd = true;
+
+            }
+        }
     }
 
     private void Rotational()
     {
-        if (!(rotationMov == 0f))
+        /* if (!(rotationMov == 0f))
+         {
+             carRB.AddTorque(-rotationMov);
+         }*/
+        float ytouchDisplacemnt;
+        ytouchDisplacemnt = posEnd.y - pos.y;
+       if(ytouchDisplacemnt>0f&&isTouchEnd)
         {
-            carRB.AddTorque(-rotationMov);
+            
+            rotationMov = -AngularSpeed;
+            carRB.AddTorque(-rotationMov*20f);
+            isTouchEnd = false;
+        }
+       else if(ytouchDisplacemnt<-200f&&isTouchEnd)
+        {
+            rotationMov = AngularSpeed;
+            carRB.AddTorque(-rotationMov*20f);
+            isTouchEnd = false;
+        }
+        else
+        {
+            rotationMov = 0;
+            carRB.AddTorque(rotationMov);
         }
     }
 
@@ -78,6 +139,7 @@ public class CarController : MonoBehaviour
     {
         movement = speed;
         Debug.Log("forward btn clicked");
+        isTouchEnd = false;
         Translation();
     } 
     public void BackwardButtonPressed()
